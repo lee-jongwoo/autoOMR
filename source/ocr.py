@@ -7,7 +7,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import os
 
-def load_ocr_model():
+def load():
     """
     학습된 모델을 한 번만 불러오는 함수
     :param model_path: 학습된 모델 파일 경로 (.h5)
@@ -15,7 +15,7 @@ def load_ocr_model():
     """
     return load_model('models/mnist_model.h5')
 
-def predict_digits_from_image(model, img):
+def predict(model, img):
     """
     이미지에서 숫자를 추출하고 예측하는 함수
     :param model: 불러온 모델 객체
@@ -45,9 +45,6 @@ def predict_digits_from_image(model, img):
             # 28x28 크기로 조정 (MNIST 형식)
             resized_digit = cv2.resize(digit, (28, 28))
 
-            cv2.imshow('digit', resized_digit)
-            cv2.waitKey(0)
-
             # 모델 입력 형식에 맞게 정규화
             resized_digit = resized_digit.astype('float32') / 255
             resized_digit = np.expand_dims(resized_digit, axis=0)
@@ -63,7 +60,8 @@ def predict_digits_from_image(model, img):
     return sorted(predictions, key=lambda x: x)
 
 # 테스트 코드
-model = load_ocr_model()
-image = cv2.imread("source/dummy/example_cropepd.jpg", cv2.IMREAD_GRAYSCALE)
-predicted_digits = predict_digits_from_image(model, image)
-print(predicted_digits)
+if __name__ == "__main__":
+    model = load()
+    image = cv2.imread("source/dummy/example_cropped.jpg", cv2.IMREAD_GRAYSCALE)
+    predicted_digits = predict(model, image)
+    print(predicted_digits)

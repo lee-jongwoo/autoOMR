@@ -9,10 +9,11 @@ def preprocess(image):
   # 출력: image (cv2)의 array
 
   # 여기부터 코드 작성
-  images = np.array()
+  images = np.array([])
 
   return images
 
 # 테스트를 위한 가짜 데이터.
-image = cv2.imread('example.jpg')
-print(preprocess(image))
+if __name__ == "__main__":
+  image = cv2.imread('source/dummy/example.jpg')
+  print(preprocess(image))
