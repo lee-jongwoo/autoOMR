@@ -4,7 +4,8 @@
 
 import cv2
 import numpy as np
-from tensorflow.keras import models
+from tensorflow.keras.models import load_model
+import os
 
 def load_ocr_model():
     """
@@ -12,7 +13,7 @@ def load_ocr_model():
     :param model_path: 학습된 모델 파일 경로 (.h5)
     :return: 모델 객체
     """
-    return models.load_model("weights/mnist_cnn.weights.h5")
+    return load_model('models/mnist_model.h5')
 
 def predict_digits_from_image(model, img):
     """
@@ -29,27 +30,40 @@ def predict_digits_from_image(model, img):
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     digits = []
+    pad = 10
 
     for contour in contours:
         # 윤곽선을 감싸는 사각형 영역 추출
         x, y, w, h = cv2.boundingRect(contour)
         if h > 10 and w > 10:  # 너무 작은 윤곽선은 무시
-            digit = thresh[y:y+h, x:x+w]  # 숫자 영역 자르기
+            start_x = np.clip(x - pad, 0, img.shape[1])
+            start_y = np.clip(y - pad, 0, img.shape[0])
+            end_x = np.clip(x + w + pad, 0, img.shape[1])
+            end_y = np.clip(y + h + pad, 0, img.shape[0])
+            digit = thresh[start_y:end_y, start_x:end_x]  # 숫자 영역 자르기
 
             # 28x28 크기로 조정 (MNIST 형식)
             resized_digit = cv2.resize(digit, (28, 28))
 
+            cv2.imshow('digit', resized_digit)
+            cv2.waitKey(0)
+
             # 모델 입력 형식에 맞게 정규화
             resized_digit = resized_digit.astype('float32') / 255
-            resized_digit = np.expand_dims(resized_digit, axis=-1)  # (28, 28, 1)
+            resized_digit = np.expand_dims(resized_digit, axis=0)
             digits.append(resized_digit)
 
     # 예측 수행
     predictions = []
     for digit in digits:
-        digit = np.expand_dims(digit, axis=0)  # (1, 28, 28, 1)
         prediction = model.predict(digit)
         predicted_digit = np.argmax(prediction)
         predictions.append(predicted_digit)
 
     return sorted(predictions, key=lambda x: x)
+
+# 테스트 코드
+model = load_ocr_model()
+image = cv2.imread("source/dummy/example_cropepd.jpg", cv2.IMREAD_GRAYSCALE)
+predicted_digits = predict_digits_from_image(model, image)
+print(predicted_digits)

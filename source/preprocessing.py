@@ -6,7 +6,7 @@ import numpy as np
 
 def preprocess(image):
   # 입력: image
-  # 출력: image의 numpy array
+  # 출력: image (cv2)의 array
 
   # 여기부터 코드 작성
   images = np.array()
