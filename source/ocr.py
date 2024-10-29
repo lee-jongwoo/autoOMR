@@ -36,7 +36,7 @@ def predict(model, img):
     for contour in contours:
         # 윤곽선을 감싸는 사각형 영역 추출
         x, y, w, h = cv2.boundingRect(contour)
-        if h > 10:  # 너무 작은 윤곽선은 무시
+        if h > 10 and w > 2:  # 너무 작은 윤곽선은 무시
             start_x = np.clip(x - pad, 0, img.shape[1])
             start_y = np.clip(y - pad, 0, img.shape[0])
             end_x = np.clip(x + w + pad, 0, img.shape[1])
@@ -52,14 +52,16 @@ def predict(model, img):
 
             # 모델 입력 형식에 맞게 정규화
             resized_digit = resized_digit.astype('float32') / 255
+            resized_digit = np.expand_dims(resized_digit, axis=-1)
             resized_digit = np.expand_dims(resized_digit, axis=0)
             prediction = model.predict(resized_digit)
             predicted_digit = np.argmax(prediction)
             digits.append((x, predicted_digit))
 
     sorted_digits = [digit for x, digit in sorted(digits, key=lambda pos: pos[0])]
-    print(sorted_digits)
-    return ''.join(map(str, sorted_digits))
+    digits_str = ''.join(map(str, sorted_digits))
+    print("Recognized digits:", digits_str)
+    return digits_str
 
 # 테스트 코드
 if __name__ == "__main__":

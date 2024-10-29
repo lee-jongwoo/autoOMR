@@ -6,6 +6,8 @@ import os
 
 # 데이터셋 불러오기
 (train_images, train_labels), (test_images, test_labels) = datasets.mnist.load_data()
+train_images = train_images.reshape((60000, 28, 28, 1))
+test_images = test_images.reshape((10000, 28, 28, 1))
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
 # 모델 정의
