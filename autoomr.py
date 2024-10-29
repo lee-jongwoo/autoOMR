@@ -27,6 +27,8 @@ except:
   exit()
 model = load()
 results = {}
+print("CNN Model loaded.")
+input("Press Enter to start processing...")
 
 for i, page in enumerate(pages):
   image = np.array(page)
