@@ -13,7 +13,7 @@ def load():
     :param model_path: 학습된 모델 파일 경로 (.h5)
     :return: 모델 객체
     """
-    return load_model('models/mnist_model.h5')
+    return load_model('models/mnist_cnn_model.h5')
 
 def predict(model, img):
     """
@@ -24,7 +24,8 @@ def predict(model, img):
     """
 
     # 이미지 전처리: 이미지 읽기 및 이진화
-    _, thresh = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY_INV)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY_INV)
 
     # 윤곽선 찾기
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -35,7 +36,7 @@ def predict(model, img):
     for contour in contours:
         # 윤곽선을 감싸는 사각형 영역 추출
         x, y, w, h = cv2.boundingRect(contour)
-        if h > 10 and w > 10:  # 너무 작은 윤곽선은 무시
+        if h > 10:  # 너무 작은 윤곽선은 무시
             start_x = np.clip(x - pad, 0, img.shape[1])
             start_y = np.clip(y - pad, 0, img.shape[0])
             end_x = np.clip(x + w + pad, 0, img.shape[1])
@@ -45,23 +46,24 @@ def predict(model, img):
             # 28x28 크기로 조정 (MNIST 형식)
             resized_digit = cv2.resize(digit, (28, 28))
 
+            '''cv2.imshow('digit', resized_digit)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()'''
+
             # 모델 입력 형식에 맞게 정규화
             resized_digit = resized_digit.astype('float32') / 255
             resized_digit = np.expand_dims(resized_digit, axis=0)
-            digits.append(resized_digit)
+            prediction = model.predict(resized_digit)
+            predicted_digit = np.argmax(prediction)
+            digits.append((x, predicted_digit))
 
-    # 예측 수행
-    predictions = []
-    for digit in digits:
-        prediction = model.predict(digit)
-        predicted_digit = np.argmax(prediction)
-        predictions.append(predicted_digit)
-
-    return sorted(predictions, key=lambda x: x)
+    sorted_digits = [digit for x, digit in sorted(digits, key=lambda pos: pos[0])]
+    print(sorted_digits)
+    return ''.join(map(str, sorted_digits))
 
 # 테스트 코드
 if __name__ == "__main__":
     model = load()
-    image = cv2.imread("source/dummy/example_cropped.jpg", cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread("source/dummy/example_cropped.jpg", cv2.IMREAD_COLOR)
     predicted_digits = predict(model, image)
     print(predicted_digits)

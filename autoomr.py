@@ -33,12 +33,14 @@ for i, page in enumerate(pages):
   croppedrects = preprocess(image)
   answers = []
   for img in croppedrects:
-    text = int(predict(model, img).join(''))
+    text = predict(model, img)
     answers.append(text)
   if answers:
     results[answers[0]] = answers[1:]
   else:
     print(f'No answers found on page {i+1}. Skipping...')
+
+print(results)
 
 print("Done. Displaying graph...")
 visualize(results)
