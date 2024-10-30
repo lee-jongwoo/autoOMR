@@ -10,32 +10,34 @@ from source.visualize import visualize
 os.chdir(os.path.dirname(__file__))
 
 # 걍 이런거 너무 해보고 싶었음
-print("""
+print(
+    """
               _         ___  __  __ ____  
    __ _ _   _| |_ ___  / _ \\|  \\/  |  _ \\ 
   / _` | | | | __/ _ \\| | | | |\\/| | |_) |
  | (_| | |_| | || (_) | |_| | |  | |  _ < 
   \\__,_|\\__,_|\\__\\___/ \\___/|_|  |_|_| \\_\\
    v1.0             (c) 2024, Team autoOMR
-                                          """)
+                                          """
+)
 
 print("Initializing...")
 
 # PDF 파일과 정답표 불러오기
 try:
-  pages = convert_from_path("files/input.pdf")
-  print("PDF file loaded.")
+    pages = convert_from_path("files/input.pdf")
+    print("PDF file loaded.")
 except:
-  print("Error: PDF file not found.")
-  print("Be sure to place input.pdf in the 'files' directory.")
-  exit()
+    print("Error: PDF file not found.")
+    print("Be sure to place input.pdf in the 'files' directory.")
+    exit()
 try:
-  answerkey = open("files/answers.txt", "r").read().splitlines()
-  print("Answer key loaded.")
+    answerkey = open("files/answers.txt", "r").read().splitlines()
+    print("Answer key loaded.")
 except:
-  print("Error: Answer key not found.")
-  print("Be sure to place answers.txt in the 'files' directory.")
-  exit()
+    print("Error: Answer key not found.")
+    print("Be sure to place answers.txt in the 'files' directory.")
+    exit()
 
 # OCR 모델 불러오기
 model = load()
@@ -45,16 +47,16 @@ input("Press Enter to start processing...")
 
 # PDF 파일 페이지별로 이미지 추출 및 OCR
 for i, page in enumerate(pages):
-  image = np.array(page)
-  croppedrects = preprocess(image)
-  answers = []
-  for img in croppedrects:
-    text = predict(model, img)
-    answers.append(text)
-  if answers:
-    results[answers[0]] = answers[1:]
-  else:
-    print(f'No answers found on page {i+1}. Skipping...')
+    image = np.array(page)
+    croppedrects = preprocess(image)
+    answers = []
+    for img in croppedrects:
+        text = predict(model, img)
+        answers.append(text)
+    if answers:
+        results[answers[0]] = answers[1:]
+    else:
+        print(f"No answers found on page {i+1}. Skipping...")
 
 # 학번 순으로 정렬
 results = dict(sorted(results.items()))
@@ -64,11 +66,11 @@ print(results)
 print("Recognition complete. Grading...")
 scores = {}
 for student, recognized in results.items():
-  score = 0
-  for i, answer in enumerate(recognized):
-    if answer == answerkey[i]:
-      score += 1
-  scores[student] = score
+    score = 0
+    for i, answer in enumerate(recognized):
+        if answer == answerkey[i]:
+            score += 1
+    scores[student] = score
 print(scores)
 
 # 성적 분포 시각화

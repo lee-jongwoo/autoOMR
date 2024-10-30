@@ -7,13 +7,15 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import os
 
+
 def load():
     """
     학습된 모델을 한 번만 불러오는 함수
     :param model_path: 학습된 모델 파일 경로 (.h5)
     :return: 모델 객체
     """
-    return load_model('models/mnist_cnn_model.h5')
+    return load_model("models/mnist_cnn_model.h5")
+
 
 def predict(model, img):
     """
@@ -46,12 +48,12 @@ def predict(model, img):
             # 28x28 크기로 조정 (MNIST 형식)
             resized_digit = cv2.resize(digit, (28, 28))
 
-            '''cv2.imshow('digit', resized_digit)
+            """cv2.imshow('digit', resized_digit)
             cv2.waitKey(0)
-            cv2.destroyAllWindows()'''
+            cv2.destroyAllWindows()"""
 
             # 모델 입력 형식에 맞게 정규화
-            resized_digit = resized_digit.astype('float32') / 255
+            resized_digit = resized_digit.astype("float32") / 255
             resized_digit = np.expand_dims(resized_digit, axis=-1)
             resized_digit = np.expand_dims(resized_digit, axis=0)
             prediction = model.predict(resized_digit)
@@ -59,9 +61,10 @@ def predict(model, img):
             digits.append((x, predicted_digit))
 
     sorted_digits = [digit for x, digit in sorted(digits, key=lambda pos: pos[0])]
-    digits_str = ''.join(map(str, sorted_digits))
+    digits_str = "".join(map(str, sorted_digits))
     print("Recognized digits:", digits_str)
     return digits_str
+
 
 # 테스트 코드
 if __name__ == "__main__":
