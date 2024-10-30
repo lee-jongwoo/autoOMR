@@ -34,6 +34,7 @@ def visualize(results, answerkey, scores):
   plt.figure()
   plt.plot(range(1, len(answerkey) + 1), correct_rate, marker='o')
   plt.xticks(range(1, len(answerkey) + 1))
+  plt.ylim(0, 1)
   plt.xlabel('문항 번호')
   plt.ylabel('정답률')
   plt.title('문항별 정답률')
